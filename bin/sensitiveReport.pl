@@ -73,6 +73,7 @@ my %seq_ne;
 while(my $b=<B>){
 	chomp($b);
 	my @s2=split /\t/,$b;
+	$s2[0]=~s/\/\d$//;
 	if($s2[2] < 97 ){
 		next;
 	}
@@ -132,6 +133,7 @@ foreach my $k (sort{$pathon_species{$b} <=> $pathon_species{$a}} keys %pathon_sp
 	if(!$seq_ne{$k}){
 		$seq_ne{$k}=0;
 	}
+	$seq_ne{$k}=1 if $seq_eq{$k}+$seq_ne{$k} == 0;
 	my $pp=sprintf("%.3f",$pathon_species{$k}/$readNum*100);
 	my $pp2=sprintf("%.3f",$seq_eq{$k}/($seq_eq{$k}+$seq_ne{$k})*100);
 	print O "$k\t$pathon_species{$k}\t$pp\t$pp2\n";

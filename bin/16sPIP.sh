@@ -129,13 +129,15 @@ then
       mv ${NGS}.fastq $NGS
 fi
 
-if [ "$step" != "" ] 
-then 
-  goto ${step}
-fi
+#if [ "$step" != "" ] 
+#then 
+#  goto ${step}
+#fi
 
-step1:
+#step1:
+echo ""
 echo "Step 1: Quality control "
+echo ""
 if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${FORMAT}" = "sff" ]
 then
     if [ ${NGS_R2} -a -f ${NGS_R2} ]
@@ -154,19 +156,26 @@ fi
 
 if [ $NGS_R2 -a -f $NGS_R2 ]
 then
-       goto step2
+#       goto step2
+#step2:
+	echo ""
+	echo "Step 2: Merge double-ended reads"
+	echo ""
+	${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50
+	mv ${NGS}.assembled.fastq ${NGS}_trimmed
+	rm ${NGS_R2}_trimmed
 else
-       goto step3
+#       goto step3
+	echo ""
+        echo "Step 2: Merge double-ended reads Skipped"
+	echo ""
 fi
+	
 
-step2:
-echo "Step 2: Merge double-ended reads"
-${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50
-mv ${NGS}.assembled.fastq ${NGS}_trimmed
-rm ${NGS_R2}_trimmed
-
-step3:
+#step3:
+echo ""
 echo "Step 3: sequence filtering"
+echo ""
 if [ "$FORMAT" = "fasta" ]
 then
        perl $REF_PATH/bin/FilterReads.pl ${NGS}_trimmed fasta 10
@@ -174,8 +183,10 @@ else
        perl $REF_PATH/bin/FilterReads.pl ${NGS}_trimmed fastq 10
 fi
 
-step4:
+#step4:
+echo ""
 echo "Step 4: Results report"
+echo ""
 if [ "$FORMAT" = "fasta" ]
 then
        python $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fasta ${NGS}.basic_stat.txt
@@ -207,7 +218,7 @@ then
       fi
       for i in `ls ${NGS}.*.pathon.fa`
       do
-       perl ${REF_PATH}/bin/blastn -query $i -out $i.blast -db ${REF_PATH}/db/16S-complete -outfmt 6 -evalue 1E-20 -num_threads ${THREAD} &
+       ${REF_PATH}/bin/blastn -query $i -out $i.blast -db ${REF_PATH}/db/16S-complete -outfmt 6 -evalue 1E-20 -num_threads ${THREAD} &
        echo $! >>Job_id
       done
       perl ${REF_PATH}/bin/pathogenSamMatch.pl $NGS.sam ${NGS}.pathon.match.txt
@@ -217,7 +228,7 @@ then
        tag=1
        for i in `cat Job_id`
        do
-          ID=`ps |grep " $i "`
+          ID=`ps -A|grep "$i"`
        if [ "$ID" != "" ]
        then
            tag=0
@@ -238,7 +249,7 @@ then
     cat ${NGS}.*.pathon.fa.blast >$NGS.tmp.blast
     rm ${NGS}.*.pathon.fa*
     perl ${REF_PATH}/bin/completeAnnotation.pl $NGS.tmp.blast ${REF_PATH}/db/16S-complete.list species $NGS.tmp.blast.list.species
-    perl ${REF_PATH}/bin/sensitiveReport.pl -l $NGS.pathogen.list -t basic_stat.txt -g $NGS.com.sam.genus.list -f $NGS.com.sam.family.list -b $NGS.tmp.blast.list.species -s $NGS.com.sam.species.list -o ${NGS}.pathogen.prediction.report
+    perl ${REF_PATH}/bin/sensitiveReport.pl -l $NGS.pathogen.list -t ${NGS}.basic_stat.txt -g $NGS.com.sam.genus.list -f $NGS.com.sam.family.list -b $NGS.tmp.blast.list.species -s $NGS.com.sam.species.list -o ${NGS}.pathogen.prediction.report
 fi
 
 enscript -p ${NGS}.pathogen.prediction.report.ps ${NGS}.pathogen.prediction.report
