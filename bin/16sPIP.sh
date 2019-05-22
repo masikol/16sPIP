@@ -23,6 +23,7 @@ THREAD=1
 Version="0.1.1"
 step="step1"
 THREAD=8
+Qformat=33
 
 while getopts ":i:r:f:s:p:m:t:hv" opt
 do
@@ -107,7 +108,7 @@ then
 	exit 65
 fi 
 
-if [ $NGS_R2 -a "${FORMAT}" != "fastq" ]
+if [ "$NGS_R2" -a "${FORMAT}" != "fastq" ]
 then
         echo "$NGS_R2 must be in fastq format"
 	exit 
@@ -161,7 +162,8 @@ then
 	echo ""
 	echo "Step 2: Merge double-ended reads"
 	echo ""
-	${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50
+	Qformat=$(cat ${NGS}_Qformat)
+	${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50 -b $Qformat
 	mv ${NGS}.assembled.fastq ${NGS}_trimmed
 	rm ${NGS_R2}_trimmed
 else

@@ -42,10 +42,12 @@ if(!defined($file)) {
 if($file2) {
 	$outFile = $file . "_trimmed";
 	my $outFile2 = $file2 . "_trimmed";
+	my $outFile3 = $file . "_Qformat";
 	open(I1, "$file") or die "Can not open file $file\n";
 	open(I2, "$file2") or die "Can not open file $file2\n";
 	open(O1, ">$outFile") or die "Can not create file $outFile\n";
 	open(O2, ">$outFile2") or die "Can not create file $outFile2\n";
+	open(O3, ">$outFile3") or die "Can not create file $outFile3\n";
 	my $tmpLine = <I1>;
 	close(I1);
 	if($tmpLine =~ /^@/) {
@@ -72,6 +74,8 @@ if($file2) {
 			prtErrorExit("FASTQ variant of paired-end data files are not same.\n\t\tFiles: $file, $file2");
 		}
 
+		print O3 "$subVal";
+		
 		if($lTrimBases != 0 || $rTrimBases != 0) {
 			print "Trimming $lTrimBases bases from left end and $rTrimBases bases from right end";
 			$isQualTrimming = 0;
@@ -148,6 +152,7 @@ if($file2) {
 		print "Error:::\n\tPaired-end sequeneing data need to be in FASTQ format\n";
 		exit;
 	}
+	close(O3);
 	close(O2);
 	close(O1);
 	close(I2);
@@ -158,6 +163,8 @@ else {
 	
 	open(I, "$file") or die "Can not open file $file\n";
 	open(O, ">$outFile") or die "Can not create file $outFile\n";
+	my $outFile3 = $file . "_Qformat";
+	open(O3, ">$outFile3") or die "Can not create file $outFile3\n";
 	my $tmpLine = <I>;
 	close(I);
 	if($tmpLine =~ /^@/) {
@@ -171,6 +178,7 @@ else {
 		my $nLines = checkFastQFormat($file, 1);
 		$subVal = getSubVal($seqFormat);
 
+		print O3 "$subVal";
 
 		if($lTrimBases != 0 || $rTrimBases != 0) {
 			print "Trimming $lTrimBases bases from left end and $rTrimBases bases from right end";
@@ -268,6 +276,7 @@ else {
 	}
 	close(O);
 	close(I);
+	close(O3);
 }
 
 
