@@ -1,19 +1,20 @@
 #!/bin/bash
 #
-#	This is the main driver script for the 16sPIP pipeline.
+# This is the main driver script for the 16sPIP pipeline.
 #
-#	Quick guide:
-#	
-#		$0 -i <forward> -r <reverse> -f <fastq/fasta/bam/sam/sff> -p <reference_path> -s <step> -m <fast/sensitive> -t <thread>
+# Quick guide:
+# 
+#   $0 -i <forward> -r <reverse> -f <fastq/fasta/bam/sam/sff> -p <reference_path> -s <step> -m <fast/sensitive> -t <thread>
 #
 ### Authors : Jiaojiao Miao <jjmiao1314@163.com>
+# Forked by Maxim Sikolenko <maximdeynonih@gmail.com>
 #
 
 
 if [ $# -lt 1 ]
 then
-	echo "Please type $0 -h for helps"
-	exit 65
+  echo "Please type $0 -h for help"
+  exit 1
 fi
 
 FORMAT="fastq"
@@ -21,43 +22,44 @@ REF_PATH="/usr/bin/16sPIP"
 MODE="fast"
 THREAD=1
 Version="0.1.1"
-step="step1"
-THREAD=8
+# step="step1"
+skipQC='false'
+THREAD=1
 Qformat=33
 
-while getopts ":i:r:f:s:p:m:t:hv" opt
+while getopts ":i:r:sf:p:m:t:hv" opt
 do
-	case "${opt}" in
-		i) NGS=${OPTARG}
-		   HELP=0		
-		;;
-		r) NGS_R2=${OPTARG}
-		#echo "${OPTARG}"
-		;;
-		f) FORMAT=${OPTARG}
-		;; 
-		h) HELP=1
-		#echo "HELP IS $HELP"
-		;;
-		s) STEP=${OPTARG}  
-		;;
-		v) VERIFICATION=1 
-		;;
-		p) REF_PATH=${OPTARG} #reference DB path
-		;;
-		m) MODE=${OPTARG} #fast or sensitive
-		;;
-		t) THREAD=${OPTARG}
-		;;
-		?) echo "Option -${opt} requires an argument. Please type $0 -h for helps" >&2
-		exit 1
-		;;
-	esac
+  case "${opt}" in
+    i) NGS=${OPTARG}
+       HELP=0   
+    ;;
+    r) NGS_R2=${OPTARG}
+    #echo "${OPTARG}"
+    ;;
+    f) FORMAT=${OPTARG}
+    ;; 
+    h) HELP=1
+    #echo "HELP IS $HELP"
+    ;;
+    s) skipQC='true'
+    ;;
+    v) VERIFICATION=1 
+    ;;
+    p) REF_PATH=${OPTARG} #reference DB path
+    ;;
+    m) MODE=${OPTARG} #fast or sensitive
+    ;;
+    t) THREAD=${OPTARG}
+    ;;
+    ?) echo "Option -${opt} requires an argument. Please type $0 -h for helps" >&2
+    exit 1
+    ;;
+  esac
 done
 
 if [ $HELP -eq 1 ]
 then
-	cat <<USAGE
+  cat <<USAGE
 
 16sPIP version ${Version}
 
@@ -65,59 +67,59 @@ This program will run the 16sPIP pipeline with the supplied parameters.
 
 Command Line Switches:
 
-	-h	Show this help & ignore all other switches
+  -h  Show this help & ignore all other switches
 
-	-i	Specify NGS file or pair-end forward reads for processing
+  -i  Specify NGS file or pair-end forward reads for processing
 
-	-r      Specify pair-end reverse reads for processing
+  -r      Specify pair-end reverse reads for processing
 
-	-f	Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]
-		
-		16sPIP will support more NGS file formats in the future
-		
-	-p	Specify the PATH for database (DB)
+  -f  Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]
+    
+    16sPIP will support more NGS file formats in the future
+    
+  -p  Specify the PATH for database (DB)
 
-		16sPIP will search the reference DB under the Path provided.
-		
-			 fast_16S_nucl_DB
-			 sensitive_nucl_DB
+    16sPIP will search the reference DB under the Path provided.
+    
+       fast_16S_nucl_DB
+       sensitive_nucl_DB
 
-	-v	Verification mode
+  -v  Verification mode
 
-	-s      jump to that step [1]
+  -s      if is set to 'skipQC', Quality Control (step 1) will be skipped
 
-	-m      Specify the analysis mode: fast or sensitive [fast]
-	-t      number of threads [1]
+  -m      Specify the analysis mode: fast or sensitive [fast]
+  -t      number of threads [1]
 
 
 
 Usage:
 
-		$0 -i <NGSfile> -f <fastq/fasta/bam/sam/sff> -p <reference_path>
+    $0 -i <NGSfile> -f <fastq/fasta/bam/sam/sff> -p <reference_path>
 
-		$0 -i <forward> -r <reverse> -f <fastq> -p <reference_path> -m <fast> -s <step>
+    $0 -i <forward> -r <reverse> -f <fastq> -p <reference_path> -m <fast>
 
 
 USAGE
-	exit
+  exit
 fi
 
 if [ ! -f $NGS ]
 then
-	echo "$NGS file doesnot exist. Please check it"
-	exit 65
+  echo "$NGS file doesnot exist. Please check it"
+  exit 65
 fi 
 
 if [ "$NGS_R2" -a "${FORMAT}" != "fastq" ]
 then
         echo "$NGS_R2 must be in fastq format"
-	exit 
+  exit 
 fi
 
 if [ "$MODE"x != "fast"x -a "$MODE"x != "sensitive"x ]
 then
         echo "Specify the analysis mode: fast or sensitive [fast]"
-	exit
+  exit
 fi
 
 if [ "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" ]
@@ -126,7 +128,7 @@ then
      mv ${NGS}.tmp $NGS
 elif [ "${FORMAT}" = "sff" ]
 then
-      python ${REF_PATH}/bin/sff_extract $NGS >${NGS}.fastq
+      python2 ${REF_PATH}/bin/sff_extract $NGS >${NGS}.fastq
       mv ${NGS}.fastq $NGS
 fi
 
@@ -135,44 +137,49 @@ fi
 #  goto ${step}
 #fi
 
-#step1:
-echo ""
-echo "Step 1: Quality control "
-echo ""
-if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${FORMAT}" = "sff" ]
-then
-    if [ ${NGS_R2} -a -f ${NGS_R2} ]
-    then
-             perl ${REF_PATH}/bin/TrimmingReads.pl -i ${NGS} -irev ${NGS_R2} -q 20 -n 50
-    else
-             perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -q 20 -n 50
-    fi
-elif [ "${FORMAT}" = "fasta" ]
-then
-          perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -n 50
+# step1:
+
+if [[ $skipqc == 'false' ]]; then
+  echo ""
+  echo "Step 1: Quality control "
+  echo ""
+  if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${FORMAT}" = "sff" ]
+  then
+      if [ ${NGS_R2} -a -f ${NGS_R2} ]
+      then
+               perl ${REF_PATH}/bin/TrimmingReads.pl -i ${NGS} -irev ${NGS_R2} -q 20 -n 50
+      else
+               perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -q 20 -n 50
+      fi
+  elif [ "${FORMAT}" = "fasta" ]
+  then
+            perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -n 50
+  else
+            echo "Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]"
+      exit
+  fi
 else
-          echo "Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]"
-	  exit
+  echo 'Step 1 (Quality Control) is skipped'
 fi
 
 if [ $NGS_R2 -a -f $NGS_R2 ]
 then
 #       goto step2
 #step2:
-	echo ""
-	echo "Step 2: Merge double-ended reads"
-	echo ""
-	Qformat=$(cat ${NGS}_Qformat)
-	${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50 -b $Qformat
-	mv ${NGS}.assembled.fastq ${NGS}_trimmed
-	rm ${NGS_R2}_trimmed
+  echo ""
+  echo "Step 2: Merge double-ended reads"
+  echo ""
+  Qformat=$(cat ${NGS}_Qformat)
+  ${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50 -b $Qformat
+  mv ${NGS}.assembled.fastq ${NGS}_trimmed
+  rm ${NGS_R2}_trimmed
 else
 #       goto step3
-	echo ""
+  echo ""
         echo "Step 2: Merge double-ended reads Skipped"
-	echo ""
+  echo ""
 fi
-	
+  
 
 #step3:
 echo ""
@@ -191,9 +198,9 @@ echo "Step 4: Results report"
 echo ""
 if [ "$FORMAT" = "fasta" ]
 then
-       python $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fasta ${NGS}.basic_stat.txt
+       python2 $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fasta ${NGS}.basic_stat.txt
 else
-       python $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fastq ${NGS}.basic_stat.txt
+       python2 $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fastq ${NGS}.basic_stat.txt
 fi
 
 if [ "$MODE" = "fast" ]
