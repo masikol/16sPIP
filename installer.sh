@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-#	installer.sh
+#   installer.sh
 #
-#	This script will install 16sPIP and its dependencies. It has been tested with Ubuntu 14.04 LTS.
+#   This script will install 16sPIP and its dependencies. It has been tested with Ubuntu 14.04 LTS.
 #
-#	quick guide:
+#   quick guide:
 #
-#	sudo bash installer.sh
+#   sudo bash installer.sh
 # 
 ### Authors : Jiaojiao Miao <jjmiao1314@163.com>
 # 
@@ -57,15 +57,12 @@ else
 fi
 
 
-exit 0
-
-
 HEXPIP_BIN="$installdir/bin"
 
 
-if [[ -z `grep ${HEXPIP_BIN}` ]]; then
-    echo -e "Appending ${HEXPIP_BIN} to your PATH in ~/.bashrc\n"
-    echo -e "\n\nPATH=${PATH}:${HEXPIP_BIN}\n" >> '~/.bashrc'
+if [[ -z `grep "${HEXPIP_BIN}" ~/.bashrc` ]]; then
+    echo -e "Appending ${HEXPIP_BIN} to your PATH in /etc/environment\n"
+    echo -e "\n\nPATH=${PATH}:${HEXPIP_BIN}\n" >> '/etc/environment'
     PATH=$PATH:${HEXPIP_BIN}
 fi
 
@@ -93,7 +90,6 @@ apt install -y python-pip
 apt install -y python-numpy
 apt install -y python-numpy
 apt install -y python-biopython
-apt install -y ps2pdf
 apt upgrade -y
 
 # Following programs are likely to be out of date in apt repos:
@@ -108,23 +104,21 @@ if [[ -z `which picard-tools` ]]; then
 fi
 
 ### install seq_crumbs
-curl http://bioinf.comav.upv.es/downloads/seq_crumbs-0.1.9.tar.gz \
-  --output seq_crumbs-0.1.9.tar.gz
-tar -zvxf seq_crumbs-0.1.9.tar.gz
-rm -v seq_crumbs-0.1.9.tar.gz
+wget -c http://bioinf.comav.upv.es/downloads/seq_crumbs-0.1.9.tar.gz
+tar -xzvf seq_crumbs-0.1.9.tar.gz
+rm seq_crumbs-0.1.9.tar.gz
 cd seq_crumbs-0.1.9
 python2 setup.py install
 cd $installdir
 mv -v seq_crumbs-0.1.9/bin/* $HEXPIP_BIN
-rm -rv seq_crumbs-0.1.9
+rm -r seq_crumbs-0.1.9
 
 ### install blast+
-curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz \
-  --output ncbi-blast-2.6.0+-x64-linux.tar.gz
-tar -zvxf ncbi-blast-2.6.0+-x64-linux.tar.gz
-rm -v ncbi-blast-2.6.0+-x64-linux.tar.gz
+curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz --output ${installdir}/ncbi-blast-2.6.0+-x64-linux.tar.gz
+tar -xzvf ncbi-blast-2.6.0+-x64-linux.tar.gz
+rm ncbi-blast-2.6.0+-x64-linux.tar.gz
 mv -v ncbi-blast-2.6.0+/bin/* $HEXPIP_BIN
-rm -rv ncbi-blast-2.6.0+
+rm -r ncbi-blast-2.6.0+
 
 chmod u+x $HEXPIP_BIN/*
 

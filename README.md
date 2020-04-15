@@ -2,7 +2,7 @@
 
 16sPIP: A Comprehensive Analysis Pipeline for Rapid Pathogen Detection in Clinical Samples Based on 16S Metagenomic Sequencing
 
-Version `S.1.0.a`; 2020-04-15 edition.
+Version `S.1.0.b`; 2020-04-15 edition.
 
 Forked by Maxim Sikolenko <maximdeynonih@gmail.com> at 2020-04-15 (forked version was 0.1.1).
 
@@ -52,7 +52,7 @@ The steps to install 16sPIP on a machine are as follows:
 ```
 git clone https://github.com/masikol/16sPIP.git
 cd 16sPIP
-bash installer.sh
+sudo bash installer.sh
 ```
 
 ## Dependencies
@@ -113,4 +113,24 @@ bash 16sPIP.sh -i <seq>-f <fastq|fasta>
 
 ```
 bash 16sPIP.sh -i <forward> -r <reverse> -s
+```
+
+### Options
+
+```
+-h  Show this help and ignore all other switches
+
+-i  Specify NGS file or pair-end forward reads for processing
+
+-r  Specify pair-end reverse reads for processing
+
+-f  Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]
+
+-p  Specify the PATH for 16sPIP root directory
+
+-v  Verification mode
+
+-m  Specify the analysis mode: fast or sensitive [fast]
+
+-t  Number of threads [1]
 ```

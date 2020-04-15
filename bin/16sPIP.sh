@@ -23,7 +23,7 @@ MODE="fast"
 THREAD=1
 Version="0.1.1"
 # step="step1"
-skipQC='false'
+# skipQC='false'
 THREAD=1
 Qformat=33
 
@@ -39,10 +39,10 @@ do
     f) FORMAT=${OPTARG}
     ;; 
     h) HELP=1
-    #echo "HELP IS $HELP"
+    # echo "HELP IS $HELP"
     ;;
-    s) skipQC='true'
-    ;;
+    # s) skipQC='true'
+    # ;;
     v) VERIFICATION=1 
     ;;
     p) REF_PATH=${OPTARG} #reference DB path
@@ -71,25 +71,17 @@ Command Line Switches:
 
   -i  Specify NGS file or pair-end forward reads for processing
 
-  -r      Specify pair-end reverse reads for processing
+  -r  Specify pair-end reverse reads for processing
 
   -f  Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]
     
-    16sPIP will support more NGS file formats in the future
-    
-  -p  Specify the PATH for database (DB)
-
-    16sPIP will search the reference DB under the Path provided.
-    
-       fast_16S_nucl_DB
-       sensitive_nucl_DB
+  -p  Specify the PATH for 16sPIP root directory
 
   -v  Verification mode
 
-  -s      if is set to 'skipQC', Quality Control (step 1) will be skipped
+  -m  Specify the analysis mode: fast or sensitive [fast]
 
-  -m      Specify the analysis mode: fast or sensitive [fast]
-  -t      number of threads [1]
+  -t  Number of threads [1]
 
 
 
@@ -139,28 +131,25 @@ fi
 
 # step1:
 
-if [[ $skipqc == 'false' ]]; then
-  echo ""
-  echo "Step 1: Quality control "
-  echo ""
-  if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${FORMAT}" = "sff" ]
-  then
-      if [ ${NGS_R2} -a -f ${NGS_R2} ]
-      then
-               perl ${REF_PATH}/bin/TrimmingReads.pl -i ${NGS} -irev ${NGS_R2} -q 20 -n 50
-      else
-               perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -q 20 -n 50
-      fi
-  elif [ "${FORMAT}" = "fasta" ]
-  then
-            perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -n 50
-  else
-            echo "Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]"
-      exit
-  fi
+echo ""
+echo "Step 1: Quality control "
+echo ""
+if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${FORMAT}" = "sff" ]
+then
+    if [ ${NGS_R2} -a -f ${NGS_R2} ]
+    then
+             perl ${REF_PATH}/bin/TrimmingReads.pl -i ${NGS} -irev ${NGS_R2} -q 20 -n 50
+    else
+             perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -q 20 -n 50
+    fi
+elif [ "${FORMAT}" = "fasta" ]
+then
+          perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -n 50
 else
-  echo 'Step 1 (Quality Control) is skipped'
+          echo "Specify NGS file format (fastq/fasta/bam/sam/sff) [fastq]"
+    exit
 fi
+
 
 if [ $NGS_R2 -a -f $NGS_R2 ]
 then
