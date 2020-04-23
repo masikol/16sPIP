@@ -52,7 +52,7 @@ The steps to install 16sPIP on a machine are as follows:
 ```
 git clone https://github.com/masikol/16sPIP.git
 cd 16sPIP
-sudo bash installer.sh
+bash installer.sh
 ```
 
 ## Dependencies
@@ -100,19 +100,13 @@ bash 16sPIP.sh -i <forward> -r <reverse>
 2. To identity the existence of other species as well as to study the population diversity of microbiome:
 
 ```
-  bash 16sPIP.sh -i <forward> -r <reverse> -f fastq-p <reference_path> -m sensitive -t 8
+bash 16sPIP.sh -i <forward> -r <reverse> -f fastq-p <reference_path> -m sensitive -t 8
 ```
 
 3. If the sample is single-ended sequencing or double-ended sequencing hasbeen merged:
 
 ```
 bash 16sPIP.sh -i <seq>-f <fastq|fasta>
-```
-
-4. To skip quality control, specigy `-s` flag:
-
-```
-bash 16sPIP.sh -i <forward> -r <reverse> -s
 ```
 
 ### Options

@@ -18,7 +18,7 @@ then
 fi
 
 FORMAT="fastq"
-REF_PATH="/usr/bin/16sPIP"
+REF_PATH=TEMPORARY_STUB
 MODE="fast"
 THREAD=1
 Version="0.1.1"
@@ -27,11 +27,11 @@ Version="0.1.1"
 THREAD=1
 Qformat=33
 
-while getopts ":i:r:sf:p:m:t:hv" opt
+while getopts ":i:r:f:p:m:t:hv" opt
 do
   case "${opt}" in
     i) NGS=${OPTARG}
-       HELP=0   
+       HELP=0
     ;;
     r) NGS_R2=${OPTARG}
     #echo "${OPTARG}"
@@ -94,6 +94,18 @@ Usage:
 
 USAGE
   exit
+fi
+
+if [[ ${REF_PATH} == TEMPORARY_STUB ]]; then
+
+  echo "Error: main script is not properly configured by the installer."
+  exit 1
+fi
+
+if [[ ! -d ${REF_PATH} ]]; then
+
+  echo "Directory ${REF_PATH} does not exist!"
+  exit 1
 fi
 
 if [ ! -f $NGS ]

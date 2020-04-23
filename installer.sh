@@ -6,17 +6,12 @@
 #
 #   quick guide:
 #
-#   sudo bash installer.sh
+#   bash installer.sh
 # 
 ### Authors : Jiaojiao Miao <jjmiao1314@163.com>
 # 
 # Forked by Maxim Sikolenko <maximdeynonih@gmail.com>
 #
-
-if [[ $USER != root ]]; then
-    echo "Please, run this script as root"
-    exit 1
-fi
 
 print_help(){
     echo -e "$0 -- this script installs 16sPIP and its dependencies.\n"
@@ -36,6 +31,19 @@ done
 
 installdir=`pwd`
 echo -e "\nInstalling 16sPIP to $installdir"
+
+main_script=${installdir}/16sPIP.sh
+echo "Configuring main script..."
+sed -i "s|REF_PATH=TEMPORARY_STUB|REF_PATH=${installdir}|" ${main_script}
+
+if [[ $? != 0 ]]; then
+    echo "Cannot configure main script."
+    echo "sed error. Aborting installation."
+    exit 1
+else 
+    echo -e "Done\n"
+fi
+
 
 if [[ ! -d ${installdir}/bin || ! -d ${installdir}/db ]]; then
     echo -e "\nPlease, change your working directory to the root of folder downloaded from github."
@@ -58,11 +66,12 @@ fi
 
 
 HEXPIP_BIN="$installdir/bin"
+envfile='~/.bashrc'
 
 
-if [[ -z `grep "${HEXPIP_BIN}" ~/.bashrc` ]]; then
-    echo -e "Appending ${HEXPIP_BIN} to your PATH in /etc/environment\n"
-    echo -e "\n\nPATH=${PATH}:${HEXPIP_BIN}\n" >> '/etc/environment'
+if [[ -z `grep "${HEXPIP_BIN}" ${envfile}` ]]; then
+    echo -e "Appending ${HEXPIP_BIN} to your PATH in ${envfile}\n"
+    echo -e "\n\nPATH=${PATH}:${HEXPIP_BIN}\n" >> ${envfile}
     PATH=$PATH:${HEXPIP_BIN}
 fi
 
@@ -75,32 +84,32 @@ if [[ -x `which curl` ]]; then
     apt install -y curl
 fi
 
-apt install -y make
-apt install -y gcc
-apt install -y g++
-apt install -y g++-4.6
-apt install -y libidn11
-apt install -y build-essential
-apt install -y enscript
-apt install -y ghostscript
-apt install -y perl
-apt install -y python2
-apt install -y python-dev
-apt install -y python-pip
-apt install -y python-numpy
-apt install -y python-numpy
-apt install -y python-biopython
-apt upgrade -y
+sudo apt install -y make
+sudo apt install -y gcc
+sudo apt install -y g++
+sudo apt install -y g++-4.6
+sudo apt install -y libidn11
+sudo apt install -y build-essential
+sudo apt install -y enscript
+sudo apt install -y ghostscript
+sudo apt install -y perl
+sudo apt install -y python2
+sudo apt install -y python-dev
+sudo apt install -y python-pip
+sudo apt install -y python-numpy
+sudo apt install -y python-numpy
+sudo apt install -y python-biopython
+sudo apt upgrade -y
 
 # Following programs are likely to be out of date in apt repos:
 ### install bwa
 if [[ -z `which bwa` ]]; then
-    apt install -y bwa
+    sudo apt install -y bwa
 fi
 
 ### install picard-tools
 if [[ -z `which picard-tools` ]]; then
-    apt install -y picard-tools
+    sudo apt install -y picard-tools
 fi
 
 ### install seq_crumbs
