@@ -32,7 +32,7 @@ done
 installdir=`pwd`
 echo -e "\nInstalling 16sPIP to $installdir"
 
-main_script=${installdir}/16sPIP.sh
+main_script=${installdir}/bin/16sPIP.sh
 echo "Configuring main script..."
 sed -i "s|REF_PATH=TEMPORARY_STUB|REF_PATH=${installdir}|" ${main_script}
 

@@ -2,7 +2,7 @@
 
 16sPIP: A Comprehensive Analysis Pipeline for Rapid Pathogen Detection in Clinical Samples Based on 16S Metagenomic Sequencing
 
-Version `S.1.0.b`; 2020-04-15 edition.
+Version `S.1.0.c`; 2020-05-15 edition.
 
 Forked by Maxim Sikolenko <maximdeynonih@gmail.com> at 2020-04-15 (forked version was 0.1.1).
 
